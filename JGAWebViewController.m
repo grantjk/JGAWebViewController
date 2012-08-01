@@ -75,6 +75,13 @@ static NSString *_httpPrefix = @"http://";
     [self loadUrl];
 }
 
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [_webView stopLoading];
+    [_webView loadHTMLString:@"" baseURL:nil];
+}
+
 - (void)loadUrl
 {
     if (_url) {
@@ -104,6 +111,7 @@ static NSString *_httpPrefix = @"http://";
 
 - (void)viewDidUnload
 {
+    [_webView stopLoading];
     [self setWebView:nil];
     [self setTextField:nil];
     [self setBackButton:nil];
