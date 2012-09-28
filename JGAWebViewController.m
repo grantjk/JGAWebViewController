@@ -79,7 +79,6 @@ static NSString *_httpPrefix = @"http://";
 {
     [super viewWillDisappear:animated];
     [_webView stopLoading];
-    [_webView loadHTMLString:@"" baseURL:nil];
 }
 
 - (void)loadUrl
