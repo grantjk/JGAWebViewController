@@ -13,14 +13,9 @@
 @end
 
 @implementation JGAWebViewController
-@synthesize webView = _webView;
-@synthesize textField = _textField;
-@synthesize url = _url;
-@synthesize backButton = _backButton;
-@synthesize stopButton = _stopButton;
-@synthesize refreshButton = _refreshButton;
-@synthesize forwardButton = _forwardButton;
-@synthesize defaultTitle = _defaultTitle;
+{
+    BOOL _isDisappearing;
+}
 
 static NSString *_httpPrefix = @"http://";
 
@@ -78,6 +73,7 @@ static NSString *_httpPrefix = @"http://";
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
+    _isDisappearing = YES;
     [_webView stopLoading];
 }
 
@@ -150,8 +146,10 @@ static NSString *_httpPrefix = @"http://";
     self.navigationItem.title = _defaultTitle;
     [self toggleToolbarButtons];
     
-    UIAlertView *errorAlert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"An unknown error occured." delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil];
-    [errorAlert show];
+    if (!_isDisappearing){
+        UIAlertView *errorAlert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"An unknown error occured." delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil];
+        [errorAlert show];
+    }
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
