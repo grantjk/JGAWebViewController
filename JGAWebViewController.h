@@ -20,6 +20,11 @@
 @property (strong, nonatomic) UIBarButtonItem *refreshButton;
 @property (strong, nonatomic) UIBarButtonItem *forwardButton;
 
+@property (nonatomic, assign) BOOL showToolbar;
+@property (nonatomic, assign) BOOL showAddressBar;
+
++(id)modalWebViewControllerWithUrl:(NSURL *)url defaultTitle:(NSString *)defaultTitle showsToolbar:(BOOL)showsToolbar showsAddressBar:(BOOL)showsAddressBar completionBlock:(void(^)(void))completionBlock;
+
 +(id)webViewControllerWithUrl:(NSURL *)url defaultTitle:(NSString *)defaultTitle;
 +(id)webViewControllerWithUrlString:(NSString *)urlString defaultTitle:(NSString *)defaultTitle;
 

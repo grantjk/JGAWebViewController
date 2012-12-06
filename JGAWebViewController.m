@@ -10,6 +10,7 @@
 
 @interface JGAWebViewController ()
 
+@property (nonatomic, copy) void(^completionBlock)(void);
 @end
 
 @implementation JGAWebViewController
@@ -18,6 +19,16 @@
 }
 
 static NSString *_httpPrefix = @"http://";
+
++(id)modalWebViewControllerWithUrl:(NSURL *)url defaultTitle:(NSString *)defaultTitle showsToolbar:(BOOL)showsToolbar showsAddressBar:(BOOL)showsAddressBar completionBlock:(void(^)(void))completionBlock
+{
+    JGAWebViewController *viewController = [JGAWebViewController webViewControllerWithUrl:url defaultTitle:defaultTitle];
+    viewController.showAddressBar = showsAddressBar;
+    viewController.showToolbar = showsToolbar;
+    viewController.completionBlock = completionBlock;
+    [viewController addCloseButtonToNavBar];
+    return viewController;
+}
 
 +(id)webViewControllerWithUrl:(NSURL *)url defaultTitle:(NSString *)defaultTitle
 {
@@ -37,7 +48,8 @@ static NSString *_httpPrefix = @"http://";
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-
+        _showToolbar = YES;
+        _showAddressBar = YES;
     }
     return self;
 }
@@ -46,20 +58,38 @@ static NSString *_httpPrefix = @"http://";
 {
     if (![[string substringToIndex:4] isEqualToString:@"http"]) {
         string = [_httpPrefix stringByAppendingString:string];
-    }   
+    }
     
     return [NSURL URLWithString:string];
+}
+
+- (void)addCloseButtonToNavBar
+{
+    UIBarButtonItem *closeButton = [[UIBarButtonItem alloc] initWithTitle:@"Back" style:UIBarButtonItemStyleBordered target:self action:@selector(closeButtonPressed:)];
+    self.navigationItem.leftBarButtonItem = closeButton;
+}
+
+- (void)closeButtonPressed:(id)sender
+{
+    if(_completionBlock){
+        _completionBlock();
+    }
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    if (!_showAddressBar) {
+        _webView.frame = CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height);
+        [self.view bringSubviewToFront:_webView];
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    [self.navigationController setToolbarHidden:NO animated:NO];
+    [self.navigationController setToolbarHidden:!_showToolbar animated:NO];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -91,16 +121,16 @@ static NSString *_httpPrefix = @"http://";
                                                        style:UIBarButtonItemStylePlain
                                                       target:self action:@selector(backButtonPressed:)];
     self.forwardButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"WebForwardButton"]
-                                                       style:UIBarButtonItemStylePlain
-                                                      target:self action:@selector(forwardButtonPressed:)];
+                                                          style:UIBarButtonItemStylePlain
+                                                         target:self action:@selector(forwardButtonPressed:)];
     self.refreshButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh
-                                                      target:self action:@selector(refreshButtonPressed:)];
+                                                                       target:self action:@selector(refreshButtonPressed:)];
     self.stopButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemStop
-                                                      target:self action:@selector(stopButtonPressed:)];
-
+                                                                    target:self action:@selector(stopButtonPressed:)];
+    
     UIBarButtonItem *space = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
-                                                      target:nil action:nil];
-    NSArray *items = [NSArray arrayWithObjects:_backButton,space, _stopButton, space,_refreshButton,space, _forwardButton, nil]; 
+                                                                           target:nil action:nil];
+    NSArray *items = [NSArray arrayWithObjects:_backButton,space, _stopButton, space,_refreshButton,space, _forwardButton, nil];
     [self setToolbarItems: items animated:YES];
 }
 
@@ -166,14 +196,14 @@ static NSString *_httpPrefix = @"http://";
     [self loadUrl];
     return YES;
 }
-    
+
 #pragma mark - Actions
 - (void)backButtonPressed:(id)sender
 {
     if ([_webView canGoBack]) {
         [_webView stopLoading];
         [_webView goBack];
-    }    
+    }
 }
 - (void)forwardButtonPressed:(id)sender
 {
