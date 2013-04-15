@@ -152,7 +152,8 @@ static NSString *_httpPrefix = @"http://";
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
-    return (interfaceOrientation != UIInterfaceOrientationPortrait);
+    BOOL isIphone = [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone;
+    return isIphone ? (interfaceOrientation != UIInterfaceOrientationPortrait) : YES;
 }
 
 - (void)toggleToolbarButtons
